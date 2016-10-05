@@ -35,6 +35,13 @@ public class Invoker {
         }
     }
 
+    public static class InvokeBusy implements SignalInvoker {
+        @Override
+        public ClientSipState invoke(ClientSipState state, String body) {
+            return state.recieveInvalid(body);
+        }
+    }
+
     public static class InvokeInvalid implements SignalInvoker {
         @Override
         public ClientSipState invoke(ClientSipState state, String body) {
