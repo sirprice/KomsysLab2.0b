@@ -19,7 +19,7 @@ public class CommunicationHub {
     }
 
     public void evaluateCommand(String msg) {
-        StringTokenizer tokenizer = new StringTokenizer(msg.substring(1), DELIMITERS);
+        StringTokenizer tokenizer = new StringTokenizer(msg, DELIMITERS);
         String cmd = null;
         String body = null;
 
