@@ -25,12 +25,16 @@ public class PhoneView {
     private TextField ipField = new TextField();
     private HBox horizontalBox1 = new HBox();
     private HBox horizontalBox2 = new HBox();
+    private HBox horizontalBox3 = new HBox();
     private VBox mainBox = new VBox();
 
     private Button call;
     private Button endCall;
     private Button answer;
+    private Label label1 = new Label("State: ");
+    private Label label2 = new Label("Messages: ");
     private Label messageLabel;
+    private Label stateLabel;
 
 
     /**
@@ -57,11 +61,11 @@ public class PhoneView {
         horizontalBox1.getChildren().addAll(ipField, call, endCall);
         horizontalBox1.setSpacing(3);
 
-        horizontalBox2.getChildren().add(messageLabel);
-
+        horizontalBox2.getChildren().addAll(label2,messageLabel);
+        horizontalBox3.getChildren().addAll(label1,stateLabel);
         mainBox.setSpacing(6);
         mainBox.setPadding(new Insets(10, 0, 0, 10));
-        mainBox.getChildren().addAll(pageTitle, horizontalBox1,horizontalBox2);
+        mainBox.getChildren().addAll(pageTitle, horizontalBox1,horizontalBox2,horizontalBox3);
 
         Group root = new Group();
         scene = new Scene(root,400,200);
@@ -71,7 +75,9 @@ public class PhoneView {
 
     private void initLabel() {
         messageLabel = new Label();
-        messageLabel.setText("FREE");
+        messageLabel.setText("Message");
+        stateLabel = new Label();
+        stateLabel.setText("Default");
     }
 
     /**
