@@ -24,7 +24,7 @@ public class CommunicationHub implements Runnable {
     //private ClientSipState currentState = new Free();
 
     private ExecutorService threadPool;
-    private static final String DELIMITERS = " ";
+    private static final String DELIMITERS = " \n";
     private ConcurrentHashMap<String, SignalInvoker> signalList = new ConcurrentHashMap<String, SignalInvoker>();
 
     private ServerSocket serverSocket = null;
