@@ -11,6 +11,11 @@ import java.net.Socket;
 public class Free extends ClientSipState {
     private Object lock = new Object();
     private Free nextState = this;
+
+    public Free() {
+        System.out.println("Entering free");
+    }
+
     @Override
     public ClientSipState sendInvite(Socket socket, String body) {
         System.out.println("Free:sendInvite");

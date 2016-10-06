@@ -18,6 +18,7 @@ public abstract class ClientSipState {
         try {
             output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             output.println("BUSY");
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -27,7 +28,9 @@ public abstract class ClientSipState {
     public ClientSipState recieveBye(){return this;}
     public ClientSipState recieveOk(){return this;}
     public ClientSipState recieveAck(){return this;}
-    public ClientSipState recieveBusy(){return new Free();}
+    public ClientSipState recieveBusy(){
+        System.out.println("ClientSipState:recieveBusy: default ");
+        return new Free();}
     public ClientSipState recieveInvalid(String body){return this;}
     public boolean isConnceted() {return true;}
 }
