@@ -6,19 +6,30 @@ import sun.misc.Signal;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by cj on 2016-10-05.
  */
 public class CommunicationHub implements Runnable {
 
+    private AtomicReference<ClientSipState> currentState;
+    private AtomicBoolean running = new AtomicBoolean(true);
+
+    //private ClientSipState currentState = new Free();
     private static final String DELIMITERS = " ";
     private ConcurrentHashMap<String, SignalInvoker> signalList = new ConcurrentHashMap<String, SignalInvoker>();
 
     private ServerSocket serverSocket = null;
     public CommunicationHub(int port) throws IOException {
+        this.currentState = new AtomicReference<>();
+        this.currentState.set(new Free());
         this.serverSocket = new ServerSocket(port);
         registrateAllInSignals();
     }
@@ -32,7 +43,6 @@ public class CommunicationHub implements Runnable {
         signalList.put("INVALID",new Invoker.InvokeInvalid());
     }
 
-    private ClientSipState currentState = new Free();
 
     public SignalInvoker invokeSignal(String signal) {
         SignalInvoker invoker = signalList.get(signal);
@@ -42,6 +52,48 @@ public class CommunicationHub implements Runnable {
         return invoker;
     }
 
+    private Object lockCurrentState = new Object();
+
+    public void sendInvite(String ip) {
+        try (Socket socket = new Socket()) {
+            ClientSipState oldState = this.currentState.get();
+            ClientSipState newState = oldState.sendInvite(socket, "INVITE");
+            boolean b = this.currentState.compareAndSet(oldState, newState);
+            if (!b || oldState == newState) {
+                return;
+            }
+            handelOpenConnection(socket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void endCall() {
+        ClientSipState oldState = this.currentState.get();
+        ClientSipState newState = oldState.sendBye("");
+        boolean b = this.currentState.compareAndSet(oldState, newState);
+        if (!b || oldState == newState) {
+            return;
+        }
+    }
+
+    private void handelOpenConnection(Socket socket) throws IOException {
+        BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        boolean connected = currentState.get().isConnceted();
+        while (connected) {
+            String msg = input.readLine();
+            ClientSipState oldState = this.currentState.get();
+            SignalInvoker signalInvoker = evaluateCommand(msg);
+            ClientSipState newState = signalInvoker.invoke(oldState, msg);
+
+            boolean b = this.currentState.compareAndSet(oldState, newState);
+            if (!b) {
+                return;
+            }
+
+            connected = currentState.get().isConnceted();
+        }
+    }
 
 
     public SignalInvoker evaluateCommand(String msg) {
@@ -64,14 +116,16 @@ public class CommunicationHub implements Runnable {
         BufferedReader input = null;
         try {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            if (currentState.setSessionSocket(socket) == false) {
+            String msg = input.readLine();
+            // this always should be from a new connection
+            ClientSipState oldState = this.currentState.get();
+            ClientSipState newState = oldState.recieveInvite(socket, msg);
+            boolean b = this.currentState.compareAndSet(oldState, newState);
+            if (!b || oldState == newState) {
                 return;
             }
-            while (currentState.isConnected()) {
-                String msg = input.readLine();
-                SignalInvoker signalInvoker = evaluateCommand(msg);
-                currentState = signalInvoker.invoke(currentState, msg);
-            }
+            handelOpenConnection(socket);
+
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
@@ -107,16 +161,27 @@ public class CommunicationHub implements Runnable {
      */
     @Override
     public void run() {
-        while (true) {
+        try {
+
+        while (running.get()) {
             try {
                 Socket incomingConnection = serverSocket.accept();
                 handleIncomingConncetion(incomingConnection);
-                if(!currentState.isConnected()) {
-                    handleIncomingConncetion(incomingConnection);
-                }else {
-                    // TODO: 2016-10-05 handle busy
-                }
+//                if(!currentState.isConnected()) {
+//                    handleIncomingConncetion(incomingConnection);
+//                }else {
+//                    // TODO: 2016-10-05 handle busy
+//                }
 
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        }finally {
+            try {
+                if(serverSocket != null) {
+                    serverSocket.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
