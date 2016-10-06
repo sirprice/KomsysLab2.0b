@@ -13,6 +13,7 @@ public abstract class ClientSipState {
     public ClientSipState sendInvite(Socket socket, String body) {return this;}
     public ClientSipState sendBye(String body) {return this;}
     public ClientSipState recieveInvite(Socket socket, String body){
+        System.out.println("ClientSipState:recieveInvite: default ");
         PrintWriter output = null;
         try {
             output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));

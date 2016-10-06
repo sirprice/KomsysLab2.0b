@@ -147,6 +147,7 @@ public class CommunicationHub implements Runnable {
             System.out.println("handeling Incoming connection");
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg = input.readLine();
+            System.out.println("handleIncomingConncetion: incoming msg: " + msg);
             // this always should be from a new connection
             ClientSipState oldState = this.currentState.get();
             ClientSipState newState = oldState.recieveInvite(socket, msg);

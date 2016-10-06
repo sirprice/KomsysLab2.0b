@@ -18,6 +18,7 @@ public class Free extends ClientSipState {
         try {
             output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             output.println("INVITE");
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -31,6 +32,7 @@ public class Free extends ClientSipState {
         try {
             output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             output.println("TRO");
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -17,6 +17,7 @@ public class WaitFoOk extends ClientSipState {
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
             output.println("ACK");
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
