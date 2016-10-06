@@ -12,15 +12,13 @@ public class WaitFoOk extends ClientSipState {
     private Socket currentSocket;
 
     public WaitFoOk(Socket currentSocket) {
-        System.out.println("Entering TROReceiver");
-        PrintWriter output = null;
-        try {
-            output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
-            output.println("ACK");
-            output.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Entering WaitFoOk");
         this.currentSocket = currentSocket;
+    }
+
+    @Override
+    public ClientSipState recieveOk() {
+        System.out.println("WaitFoOk:recieveOk");
+        return new Free();
     }
 }

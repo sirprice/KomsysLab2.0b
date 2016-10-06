@@ -21,7 +21,7 @@ public class InSession extends ClientSipState {
         PrintWriter output = null;
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
-            output.println("200 OK");
+            output.println("BYE");
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,6 +35,7 @@ public class InSession extends ClientSipState {
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
             output.println("200 OK");
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
