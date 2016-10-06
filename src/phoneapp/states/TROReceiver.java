@@ -9,6 +9,7 @@ public class TROReceiver extends ClientSipState {
     private Socket currentSocket;
 
     public TROReceiver(Socket currentSocket) {
+        System.out.println("Entering TROReceiver");
         this.currentSocket = currentSocket;
     }
 

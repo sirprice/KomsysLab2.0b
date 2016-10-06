@@ -12,6 +12,7 @@ public class WaitFoOk extends ClientSipState {
     private Socket currentSocket;
 
     public WaitFoOk(Socket currentSocket) {
+        System.out.println("Entering TROReceiver");
         PrintWriter output = null;
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));

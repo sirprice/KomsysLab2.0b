@@ -66,7 +66,9 @@ public class CommunicationHub implements Runnable {
     private Object lockCurrentState = new Object();
 
     public void sendInvite(String ip) {
+        System.out.println("Starting call");
         try (Socket socket = new Socket(ip,listeningPort)) {
+            System.out.println("sending invite");
             ClientSipState oldState = this.currentState.get();
             ClientSipState newState = oldState.sendInvite(socket, "INVITE");
             boolean b = this.currentState.compareAndSet(oldState, newState);

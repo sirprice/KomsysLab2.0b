@@ -12,6 +12,7 @@ public class InSession extends ClientSipState {
     private Socket currentSocket;
 
     public InSession(Socket currentSocket) {
+        System.out.println("Entering InSession");
         this.currentSocket = currentSocket;
     }
 
