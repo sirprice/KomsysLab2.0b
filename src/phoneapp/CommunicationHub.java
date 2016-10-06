@@ -48,6 +48,11 @@ public class CommunicationHub implements Runnable {
 
     public void shutdownServer() {
         running.set(false);
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public SignalInvoker invokeSignal(String signal) {
@@ -85,6 +90,7 @@ public class CommunicationHub implements Runnable {
 
     private void handelOpenConnection(Socket socket) throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        System.out.println("Opening connection");
         boolean connected = currentState.get().isConnceted();
         while (connected) {
             String msg = input.readLine();
@@ -121,6 +127,7 @@ public class CommunicationHub implements Runnable {
     private void handleIncomingConncetion(Socket socket) {
         BufferedReader input = null;
         try {
+            System.out.println("handeling Incoming connection");
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg = input.readLine();
             // this always should be from a new connection
@@ -171,7 +178,9 @@ public class CommunicationHub implements Runnable {
 
         while (running.get()) {
             try {
+                System.out.println("waiting for connection...");
                 Socket incomingConnection = serverSocket.accept();
+                System.out.println("Incoming connection!");
                 handleIncomingConncetion(incomingConnection);
 //                if(!currentState.isConnected()) {
 //                    handleIncomingConncetion(incomingConnection);

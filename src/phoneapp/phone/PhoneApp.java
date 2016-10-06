@@ -2,6 +2,8 @@ package phoneapp.phone;/**
  * Created by o_0 on 2016-10-01.
  */
 
+import javafx.event.EventHandler;
+import javafx.stage.WindowEvent;
 import phoneapp.CommunicationHub;
 import phoneapp.phone.controler.PhoneAppController;
 import phoneapp.phone.view.PhoneView;
@@ -29,14 +31,20 @@ public class PhoneApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         PhoneView view = new PhoneView(primaryStage);
-        CommunicationHub hub = null;
+        final CommunicationHub hub;
         try {
-            hub = new CommunicationHub(0);
+            hub = new CommunicationHub(55000);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
         this.controler = new PhoneAppController(view,hub);
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                hub.shutdownServer();
+            }
+        });
         controler.startApp();
     }
 }
