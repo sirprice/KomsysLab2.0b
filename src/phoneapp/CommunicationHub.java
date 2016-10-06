@@ -55,6 +55,7 @@ public class CommunicationHub implements Runnable {
         running.set(false);
         try {
             serverSocket.close();
+            endCall();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,7 +106,7 @@ public class CommunicationHub implements Runnable {
         BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         System.out.println("Opening connection");
         boolean connected = currentState.get().isConnceted();
-        while (connected) {
+        while (connected || running.get() != true) {
             String msg = input.readLine();
             ClientSipState oldState = this.currentState.get();
             SignalInvoker signalInvoker = evaluateCommand(msg);
@@ -128,7 +129,7 @@ public class CommunicationHub implements Runnable {
         }
         StringTokenizer tokenizer = new StringTokenizer(msg, DELIMITERS);
         String cmd = null;
-        String body = null;
+        String body = "";
 
         if (tokenizer.hasMoreTokens()) {
             cmd = tokenizer.nextToken();
