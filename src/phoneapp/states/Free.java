@@ -1,5 +1,8 @@
 package phoneapp.states;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
@@ -11,13 +14,26 @@ public class Free extends ClientSipState {
     @Override
     public ClientSipState sendInvite(Socket socket, String body) {
         System.out.println("Free:sendInvite");
+        PrintWriter output = null;
+        try {
+            output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            output.println("INVITE");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return new TROCaller(socket);
     }
 
     @Override
     public ClientSipState recieveInvite(Socket socket,String body) {
         System.out.println("Free:recieveInvite");
-
+        PrintWriter output = null;
+        try {
+            output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            output.println("TRO");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return new TROReceiver(socket);
     }
 

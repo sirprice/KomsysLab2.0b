@@ -8,6 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,11 +22,15 @@ public class CommunicationHub implements Runnable {
     private AtomicBoolean running = new AtomicBoolean(true);
     private int listeningPort;
     //private ClientSipState currentState = new Free();
+
+    private ExecutorService threadPool;
     private static final String DELIMITERS = " ";
     private ConcurrentHashMap<String, SignalInvoker> signalList = new ConcurrentHashMap<String, SignalInvoker>();
 
     private ServerSocket serverSocket = null;
+
     public CommunicationHub(int port) throws IOException {
+        this.threadPool = Executors.newCachedThreadPool();
         this.listeningPort = (port <= 0) ? 5060 : port;
         this.currentState = new AtomicReference<>();
         this.currentState.set(new Free());
@@ -34,16 +40,15 @@ public class CommunicationHub implements Runnable {
 
     private void registrateAllInSignals() {
         //signalList.put("INVITE",new phoneapp.Invoker.InvokeInvite());
-        signalList.put("TRO",new Invoker.InvokeTRO());
-        signalList.put("200",new Invoker.InvokeOK());
-        signalList.put("ACK",new Invoker.InvokeAck());
-        signalList.put("BUSY",new Invoker.InvokeBusy());
-        signalList.put("INVALID",new Invoker.InvokeInvalid());
+        signalList.put("TRO", new Invoker.InvokeTRO());
+        signalList.put("200", new Invoker.InvokeOK());
+        signalList.put("ACK", new Invoker.InvokeAck());
+        signalList.put("BUSY", new Invoker.InvokeBusy());
+        signalList.put("INVALID", new Invoker.InvokeInvalid());
     }
 
     public void startServer() {
-        Thread th = new Thread(this);
-        th.start();
+        threadPool.execute(this);
     }
 
     public void shutdownServer() {
@@ -67,18 +72,24 @@ public class CommunicationHub implements Runnable {
 
     public void sendInvite(String ip) {
         System.out.println("Starting call");
-        try (Socket socket = new Socket(ip,listeningPort)) {
-            System.out.println("sending invite");
-            ClientSipState oldState = this.currentState.get();
-            ClientSipState newState = oldState.sendInvite(socket, "INVITE");
-            boolean b = this.currentState.compareAndSet(oldState, newState);
-            if (!b || oldState == newState) {
-                return;
+        Runnable invit = new Runnable() {
+            @Override
+            public void run() {
+                try (Socket socket = new Socket(ip, listeningPort)) {
+                    System.out.println("sending invite");
+                    ClientSipState oldState = currentState.get();
+                    ClientSipState newState = oldState.sendInvite(socket, "INVITE");
+                    boolean b = currentState.compareAndSet(oldState, newState);
+                    if (!b || oldState == newState) {
+                        return;
+                    }
+                    handelOpenConnection(socket);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            handelOpenConnection(socket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        };
+        threadPool.execute(invit);
     }
 
     public void endCall() {
@@ -111,18 +122,22 @@ public class CommunicationHub implements Runnable {
 
 
     public SignalInvoker evaluateCommand(String msg) {
+        System.out.println("Msg to eval: " + msg);
+        if (msg == null) {
+            return new Invoker.InvokeInvalid();
+        }
         StringTokenizer tokenizer = new StringTokenizer(msg, DELIMITERS);
         String cmd = null;
         String body = null;
 
         if (tokenizer.hasMoreTokens()) {
             cmd = tokenizer.nextToken();
-            System.out.println("EvaluateCommand: Command = "+cmd);
+            System.out.println("EvaluateCommand: Command = " + cmd);
         }
-        while (tokenizer.hasMoreTokens()){
-            body += tokenizer.nextToken() +" ";
+        while (tokenizer.hasMoreTokens()) {
+            body += tokenizer.nextToken() + " ";
         }
-        System.out.println("EvaluateCommand: Body = "+body);
+        System.out.println("EvaluateCommand: Body = " + body);
         return invokeSignal(cmd);
     }
 
@@ -143,7 +158,7 @@ public class CommunicationHub implements Runnable {
 
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (input != null) {
                 try {
                     input.close();
@@ -178,25 +193,25 @@ public class CommunicationHub implements Runnable {
     public void run() {
         try {
 
-        while (running.get()) {
-            try {
-                System.out.println("waiting for connection...");
-                Socket incomingConnection = serverSocket.accept();
-                System.out.println("Incoming connection!");
-                handleIncomingConncetion(incomingConnection);
+            while (running.get()) {
+                try {
+                    System.out.println("waiting for connection...");
+                    Socket incomingConnection = serverSocket.accept();
+                    System.out.println("Incoming connection!");
+                    handleIncomingConncetion(incomingConnection);
 //                if(!currentState.isConnected()) {
 //                    handleIncomingConncetion(incomingConnection);
 //                }else {
 //                    // TODO: 2016-10-05 handle busy
 //                }
 
-            } catch (IOException e) {
-                e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
-        }finally {
+        } finally {
             try {
-                if(serverSocket != null) {
+                if (serverSocket != null) {
                     serverSocket.close();
                 }
             } catch (IOException e) {
