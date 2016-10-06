@@ -1,14 +1,11 @@
-import com.sun.xml.internal.bind.v2.TODO;
-import states.ClientSipState;
-import states.Free;
-import sun.misc.Signal;
+package phoneapp;
+
+import phoneapp.states.ClientSipState;
+import phoneapp.states.Free;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,13 +18,14 @@ public class CommunicationHub implements Runnable {
 
     private AtomicReference<ClientSipState> currentState;
     private AtomicBoolean running = new AtomicBoolean(true);
-
+    private int listeningPort;
     //private ClientSipState currentState = new Free();
     private static final String DELIMITERS = " ";
     private ConcurrentHashMap<String, SignalInvoker> signalList = new ConcurrentHashMap<String, SignalInvoker>();
 
     private ServerSocket serverSocket = null;
     public CommunicationHub(int port) throws IOException {
+        this.listeningPort = (port <= 0) ? 5060 : port;
         this.currentState = new AtomicReference<>();
         this.currentState.set(new Free());
         this.serverSocket = new ServerSocket(port);
@@ -35,7 +33,7 @@ public class CommunicationHub implements Runnable {
     }
 
     private void registrateAllInSignals() {
-        signalList.put("INVOKE",new Invoker.InvokeInvite());
+        //signalList.put("INVITE",new phoneapp.Invoker.InvokeInvite());
         signalList.put("TRO",new Invoker.InvokeTRO());
         signalList.put("200",new Invoker.InvokeOK());
         signalList.put("ACK",new Invoker.InvokeAck());
@@ -43,6 +41,14 @@ public class CommunicationHub implements Runnable {
         signalList.put("INVALID",new Invoker.InvokeInvalid());
     }
 
+    public void startServer() {
+        Thread th = new Thread(this);
+        th.start();
+    }
+
+    public void shutdownServer() {
+        running.set(false);
+    }
 
     public SignalInvoker invokeSignal(String signal) {
         SignalInvoker invoker = signalList.get(signal);
@@ -55,7 +61,7 @@ public class CommunicationHub implements Runnable {
     private Object lockCurrentState = new Object();
 
     public void sendInvite(String ip) {
-        try (Socket socket = new Socket()) {
+        try (Socket socket = new Socket(ip,listeningPort)) {
             ClientSipState oldState = this.currentState.get();
             ClientSipState newState = oldState.sendInvite(socket, "INVITE");
             boolean b = this.currentState.compareAndSet(oldState, newState);

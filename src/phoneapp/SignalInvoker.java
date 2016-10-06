@@ -1,4 +1,6 @@
-import states.ClientSipState;
+package phoneapp;
+
+import phoneapp.states.ClientSipState;
 
 /**
  * Created by o_0 on 2016-10-05.

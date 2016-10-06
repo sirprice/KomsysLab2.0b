@@ -1,13 +1,12 @@
-package phone.view;
+package phoneapp.phone.view;
 
-import phone.controler.PhoneAppController;
+import phoneapp.phone.controler.PhoneAppController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -113,6 +112,7 @@ public class PhoneView {
             @Override
             public void handle(ActionEvent event) {
                 System.out.println("Calling.....");
+                controllerDelegate.startCall(ipField.getText());
             }
         });
 
@@ -120,6 +120,7 @@ public class PhoneView {
             @Override
             public void handle(ActionEvent event) {
                 System.out.println("Ending Call.....");
+                controllerDelegate.endCall();
 
             }
         });

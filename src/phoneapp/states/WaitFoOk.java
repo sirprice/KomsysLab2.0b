@@ -1,4 +1,4 @@
-package states;
+package phoneapp.states;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

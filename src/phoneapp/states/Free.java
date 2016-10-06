@@ -1,4 +1,4 @@
-package states;
+package phoneapp.states;
 
 import java.net.Socket;
 

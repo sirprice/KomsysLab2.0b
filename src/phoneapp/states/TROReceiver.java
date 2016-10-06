@@ -1,7 +1,5 @@
-package states;
+package phoneapp.states;
 
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
