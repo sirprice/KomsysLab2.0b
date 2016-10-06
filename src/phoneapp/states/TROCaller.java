@@ -12,12 +12,13 @@ public class TROCaller extends ClientSipState {
     private Socket currentSocket;
 
     public TROCaller(Socket currentSocket) {
+        System.out.println("TROCaller: Enter TROCaller state");
         this.currentSocket = currentSocket;
     }
 
     @Override
     public ClientSipState recieveTRO() {
-
+        System.out.println("TROCaller: Receiving TRO call");
         PrintWriter output = null;
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
