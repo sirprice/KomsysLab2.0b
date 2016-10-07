@@ -23,9 +23,8 @@ public class CommunicationHub implements Runnable {
     private AtomicReference<ClientSipState> currentState;
     private AtomicBoolean running = new AtomicBoolean(true);
     private int listeningPort;
-    //private ClientSipState currentState = new Free();
-
     private ExecutorService threadPool;
+    private String displayMessage = "";
     private static final String DELIMITERS = " \n";
     private ConcurrentHashMap<String, SignalInvoker> signalList = new ConcurrentHashMap<String, SignalInvoker>();
 
@@ -40,6 +39,14 @@ public class CommunicationHub implements Runnable {
         //this.serverSocket.setSoTimeout(2000);
         registrateAllInSignals();
         System.out.println("Can accept call: ip: " + Inet4Address.getLocalHost() + " port: " + listeningPort);
+    }
+
+    synchronized public String getDisplayMessage() {
+        return displayMessage;
+    }
+
+    synchronized private void setDisplayMessage(String msg) {
+        displayMessage = msg;
     }
 
     private void registrateAllInSignals() {
@@ -114,21 +121,24 @@ public class CommunicationHub implements Runnable {
     private void handelOpenConnection(Socket socket) throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         System.out.println("Opening connection");
+        String displayMsg = "Call ended";
         boolean connected = currentState.get().isConnceted();
         while (connected || running.get()) {
 
             String msg = "none";
             try {
                 msg = input.readLine();
-            }catch (SocketTimeoutException e) {
+            } catch (SocketTimeoutException e) {
                 if (this.currentState.get().hasTimedOut()) {
                     System.out.println("Connection timeout..");
-                    return;
+                    displayMsg = "Connection timed out";
+                    break;
                 }
             }
             if (msg == null) {
+                displayMsg = "Client dropped out";
                 System.out.println("Client dropped out");
-                return;
+                break;
             }
             ClientSipState oldState = this.currentState.get();
             SignalInvoker signalInvoker = evaluateCommand(msg);
@@ -136,11 +146,12 @@ public class CommunicationHub implements Runnable {
 
             boolean b = this.currentState.compareAndSet(oldState, newState);
             if (!b) {
-                return;
+                break;
             }
 
             connected = currentState.get().isConnceted();
         }
+        setDisplayMessage(displayMsg);
     }
 
 
@@ -169,10 +180,10 @@ public class CommunicationHub implements Runnable {
 
         } catch (SocketTimeoutException e) {
             System.out.println("handleConnection timed out... Forgot to send INVITE ?");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
+
             if (input != null) {
                 try {
                     input.close();
@@ -205,6 +216,7 @@ public class CommunicationHub implements Runnable {
         Runnable invit = new Runnable() {
             @Override
             public void run() {
+                setDisplayMessage("Starting Call");
                 try (Socket socket = new Socket(ip, listeningPort)) {
                     System.out.println("sending invite");
                     ClientSipState oldState = currentState.get();
@@ -218,8 +230,12 @@ public class CommunicationHub implements Runnable {
                         System.out.println("sendInvite:failed");
                         return;
                     }
+
+                    setDisplayMessage("Connected!");
                     handelOpenConnection(socket);
+
                 } catch (IOException e) {
+                    setDisplayMessage("Could not connect to client");
                     e.printStackTrace();
                 }
             }
@@ -241,7 +257,6 @@ public class CommunicationHub implements Runnable {
     @Override
     public void run() {
         try {
-
             while (running.get()) {
                 try {
                     System.out.println("waiting for connection...");

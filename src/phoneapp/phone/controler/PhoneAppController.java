@@ -41,4 +41,8 @@ public class PhoneAppController {
     public String getStateName(){
         return hub.getCurrentStateName();
     }
+
+    public String getDisplayMessage() {
+        return hub.getDisplayMessage();
+    }
 }

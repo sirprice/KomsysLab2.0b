@@ -145,6 +145,7 @@ public class PhoneView {
         @Override
         public void handle(long now) {
             stateLabel.setText(controllerDelegate.getStateName());
+            messageLabel.setText(controllerDelegate.getDisplayMessage());
         }
     }
 }
