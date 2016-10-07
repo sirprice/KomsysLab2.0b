@@ -115,7 +115,7 @@ public class CommunicationHub implements Runnable {
             String msg = input.readLine();
             ClientSipState oldState = this.currentState.get();
             SignalInvoker signalInvoker = evaluateCommand(msg);
-            ClientSipState newState = signalInvoker.invoke(oldState, msg);
+            ClientSipState newState = signalInvoker.invoke(socket,oldState, msg);
 
             boolean b = this.currentState.compareAndSet(oldState, newState);
             if (!b) {
