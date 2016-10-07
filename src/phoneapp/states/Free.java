@@ -61,7 +61,7 @@ public class Free extends ClientSipState {
     private ClientSipState parseBody(Socket socket, String body) {
 
         StringTokenizer tokenizer = new StringTokenizer(body, DELIMITERS);
-
+        ClientSipState tro = this;
         String cmd = null;
 
         String[] args = new String[4];
@@ -82,13 +82,17 @@ public class Free extends ClientSipState {
         int port = 0;
         try {
             port = Integer.parseInt(args[3]);
+            tro = new TROReceiver(socket, sip_from, sip_to, port);
 
         }catch (NumberFormatException ex) {
             System.out.println("Invalid string:" + body);
             return this;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return this;
         }
 
-        return new TROReceiver(socket, sip_from, sip_to, port);
+        return tro;
     }
 
     @Override
