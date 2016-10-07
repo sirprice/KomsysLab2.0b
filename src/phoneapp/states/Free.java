@@ -48,4 +48,9 @@ public class Free extends ClientSipState {
     public boolean isConnceted() {
         return false;
     }
+
+    @Override
+    public String getStatename() {
+        return "FREE";
+    }
 }

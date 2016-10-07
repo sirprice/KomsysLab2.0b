@@ -37,4 +37,8 @@ public class PhoneAppController {
         userView.init();
         userView.showScene();
     }
+
+    public String getStateName(){
+        return hub.getCurrentStateName();
+    }
 }

@@ -43,6 +43,7 @@ public class PhoneApp extends Application {
             @Override
             public void handle(WindowEvent event) {
                 hub.shutdownServer();
+                view.cleanUp();
             }
         });
         controler.startApp();

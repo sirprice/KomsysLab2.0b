@@ -1,5 +1,7 @@
 package phoneapp.phone.view;
 
+import javafx.animation.Animation;
+import javafx.animation.AnimationTimer;
 import phoneapp.phone.controler.PhoneAppController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -20,7 +22,7 @@ public class PhoneView {
     private PhoneAppController controllerDelegate = null;
     private Scene scene;
 
-
+    private UpdateTimer updateTimer;
 
     private TextField ipField = new TextField();
     private HBox horizontalBox1 = new HBox();
@@ -53,10 +55,12 @@ public class PhoneView {
         Label pageTitle = new Label("PhoneApp");
         pageTitle.setFont(new Font("Arial", 20));
 
+
         initLabel();
         initButtons();
         initTextFields();
 
+        updateTimer = new UpdateTimer();
 
         horizontalBox1.getChildren().addAll(ipField, call, endCall);
         horizontalBox1.setSpacing(3);
@@ -87,6 +91,8 @@ public class PhoneView {
         primaryStage.setTitle("Phone World! ");
         primaryStage.setScene(scene);
         primaryStage.show();
+        updateTimer.start();
+
     }
 
 
@@ -131,8 +137,14 @@ public class PhoneView {
             }
         });
     }
-    public void changeMessage(String newMessage){
+    public void cleanUp(){
+        updateTimer.stop();
+    }
 
-
+    private class UpdateTimer extends AnimationTimer{
+        @Override
+        public void handle(long now) {
+            stateLabel.setText(controllerDelegate.getStateName());
+        }
     }
 }

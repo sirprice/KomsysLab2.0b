@@ -33,4 +33,5 @@ public abstract class ClientSipState {
         return new Free();}
     public ClientSipState recieveInvalid(String body){return this;}
     public boolean isConnceted() {return true;}
+    public String getStatename(){return "unknown state";};
 }

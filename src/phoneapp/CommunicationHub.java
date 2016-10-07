@@ -41,7 +41,7 @@ public class CommunicationHub implements Runnable {
     }
 
     private void registrateAllInSignals() {
-        signalList.put("INVITE",new phoneapp.Invoker.InvokeInvite());
+        signalList.put("INVITE",new Invoker.InvokeInvite());
         signalList.put("TRO", new Invoker.InvokeTRO());
         signalList.put("200", new Invoker.InvokeOK());
         signalList.put("ACK", new Invoker.InvokeAck());
@@ -85,7 +85,29 @@ public class CommunicationHub implements Runnable {
             return;
         }
     }
+    public String getCurrentStateName(){
+        return currentState.get().getStatename();
+    }
 
+    private SignalInvoker evaluateCommand(String msg) {
+        System.out.println("Msg to eval: " + msg);
+        if (msg == null) {
+            return new Invoker.InvokeInvalid();
+        }
+        StringTokenizer tokenizer = new StringTokenizer(msg, DELIMITERS);
+        String cmd = null;
+        String body = "";
+
+        if (tokenizer.hasMoreTokens()) {
+            cmd = tokenizer.nextToken();
+            System.out.println("EvaluateCommand: Command = " + cmd);
+        }
+        while (tokenizer.hasMoreTokens()) {
+            body += tokenizer.nextToken() + " ";
+        }
+        System.out.println("EvaluateCommand: Body = " + body);
+        return invokeSignal(cmd);
+    }
     private void handelOpenConnection(Socket socket) throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         System.out.println("Opening connection");
@@ -107,25 +129,6 @@ public class CommunicationHub implements Runnable {
     }
 
 
-    public SignalInvoker evaluateCommand(String msg) {
-        System.out.println("Msg to eval: " + msg);
-        if (msg == null) {
-            return new Invoker.InvokeInvalid();
-        }
-        StringTokenizer tokenizer = new StringTokenizer(msg, DELIMITERS);
-        String cmd = null;
-        String body = "";
-
-        if (tokenizer.hasMoreTokens()) {
-            cmd = tokenizer.nextToken();
-            System.out.println("EvaluateCommand: Command = " + cmd);
-        }
-        while (tokenizer.hasMoreTokens()) {
-            body += tokenizer.nextToken() + " ";
-        }
-        System.out.println("EvaluateCommand: Body = " + body);
-        return invokeSignal(cmd);
-    }
 
     private void handleConnection(Socket socket) {
         BufferedReader input = null;
@@ -169,8 +172,6 @@ public class CommunicationHub implements Runnable {
             }
         }
     }
-
-
 
     public void handleIncomingConnection(final Socket socket){
         Runnable invit = new Runnable() {

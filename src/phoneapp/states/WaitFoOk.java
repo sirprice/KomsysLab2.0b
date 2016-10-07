@@ -21,4 +21,8 @@ public class WaitFoOk extends ClientSipState {
         System.out.println("WaitFoOk:recieveOk");
         return new Free();
     }
+    @Override
+    public String getStatename() {
+        return "WAIT FOR OK";
+    }
 }
