@@ -7,6 +7,7 @@ import java.net.Inet4Address;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 /**
  * Created by cj on 2016-10-04.
@@ -28,7 +29,7 @@ public class Free extends ClientSipState {
         int port = (new Random()).nextInt(10000) + 44000;
         try {
             sip_me = Inet4Address.getLocalHost().getHostAddress();
-            sip_to = socket.getInetAddress().toString();
+            sip_to = socket.getInetAddress().toString().substring(1);
             System.out.println("sip_to: " + sip_to);
             System.out.println("sip_from: " + sip_me);
         } catch (UnknownHostException e) {
@@ -44,8 +45,43 @@ public class Free extends ClientSipState {
         return new TROCaller(socket);
     }
 
+    private static String DELIMITERS = " \n";
+
+    private ClientSipState parseBody(Socket socket, String body) {
+
+        StringTokenizer tokenizer = new StringTokenizer(body, DELIMITERS);
+
+        String cmd = null;
+
+        String[] args = new String[4];
+        for (int i = 0; i < 4; i++) {
+            if (tokenizer.hasMoreTokens() == false) {
+                System.out.println("Invalid string:" + body);
+                return this;
+            }
+            args[i] = tokenizer.nextToken();
+        }
+        if (!args[0].equals("INVITE")) {
+            return this;
+        }
+
+        String sip_from = args[1];
+        String sip_to = args[2];
+        // TODO: 2016-10-07 get corret port from audio udp class
+        int port = 0;
+        try {
+            port = Integer.parseInt(args[3]);
+
+        }catch (NumberFormatException ex) {
+            System.out.println("Invalid string:" + body);
+            return this;
+        }
+
+        return new TROReceiver(socket, sip_from, sip_to, port);
+    }
+
     @Override
-    public ClientSipState recieveInvite(Socket socket,String body) {
+    public ClientSipState recieveInvite(Socket socket, String body) {
         System.out.println("Free:recieveInvite: body:" + body);
         PrintWriter output = null;
         try {
@@ -55,7 +91,7 @@ public class Free extends ClientSipState {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new TROReceiver(socket,"","",1);
+        return parseBody(socket,body);
     }
 
     @Override
