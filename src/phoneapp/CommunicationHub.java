@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -36,6 +37,7 @@ public class CommunicationHub implements Runnable {
         this.currentState = new AtomicReference<>();
         this.currentState.set(new Free());
         this.serverSocket = new ServerSocket(port);
+        //this.serverSocket.setSoTimeout(2000);
         registrateAllInSignals();
         System.out.println("Can accept call: ip: " + Inet4Address.getLocalHost() + " port: " + listeningPort);
     }
@@ -115,7 +117,15 @@ public class CommunicationHub implements Runnable {
         boolean connected = currentState.get().isConnceted();
         while (connected || running.get()) {
 
-            String msg = input.readLine();
+            String msg = "none";
+            try {
+                msg = input.readLine();
+            }catch (SocketTimeoutException e) {
+                if (this.currentState.get().hasTimedOut()) {
+                    System.out.println("Connection timeout..");
+                    return;
+                }
+            }
             if (msg == null) {
                 System.out.println("Client dropped out");
                 return;
@@ -157,7 +167,10 @@ public class CommunicationHub implements Runnable {
             }
             handelOpenConnection(socket);
 
-        } catch (IOException e) {
+        } catch (SocketTimeoutException e) {
+            System.out.println("handleConnection timed out... Forgot to send INVITE ?");
+        }
+        catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (input != null) {
@@ -233,11 +246,14 @@ public class CommunicationHub implements Runnable {
                 try {
                     System.out.println("waiting for connection...");
                     Socket incomingConnection = serverSocket.accept();
+                    incomingConnection.setSoTimeout(2000);
                     System.out.println("Incoming connection!");
 
                     handleIncomingConnection(incomingConnection);
 
 
+                } catch (SocketTimeoutException e) {
+                    System.out.println("tick");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
