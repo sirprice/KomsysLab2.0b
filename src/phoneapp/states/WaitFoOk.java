@@ -17,8 +17,9 @@ public class WaitFoOk extends ClientSipState {
     }
 
     @Override
-    public ClientSipState recieveOk() {
+    public ClientSipState recieveOk() throws IOException {
         System.out.println("WaitFoOk:recieveOk");
+        currentSocket.close();
         return new Free();
     }
     @Override
