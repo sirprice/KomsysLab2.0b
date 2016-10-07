@@ -75,27 +75,7 @@ public class CommunicationHub implements Runnable {
 
     private Object lockCurrentState = new Object();
 
-    public void sendInvite(String ip) {
-        System.out.println("Starting call");
-        Runnable invit = new Runnable() {
-            @Override
-            public void run() {
-                try (Socket socket = new Socket(ip, listeningPort)) {
-                    System.out.println("sending invite");
-                    ClientSipState oldState = currentState.get();
-                    ClientSipState newState = oldState.sendInvite(socket, "INVITE");
-                    boolean b = currentState.compareAndSet(oldState, newState);
-                    if (!b || oldState == newState) {
-                        return;
-                    }
-                    handelOpenConnection(socket);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        threadPool.execute(invit);
-    }
+
 
     public void endCall() {
         ClientSipState oldState = this.currentState.get();
@@ -147,7 +127,7 @@ public class CommunicationHub implements Runnable {
         return invokeSignal(cmd);
     }
 
-    private void handleIncomingConncetion(Socket socket) {
+    private void handleConnection(Socket socket) {
         BufferedReader input = null;
         try {
             System.out.println("handeling Incoming connection");
@@ -159,8 +139,12 @@ public class CommunicationHub implements Runnable {
             ClientSipState oldState = this.currentState.get();
             ClientSipState newState = oldState.recieveInvite(socket, msg);
 
+            if (oldState == newState) {
+                System.out.println("handleConnection;Busy");
+                return;
+            }
             boolean b = this.currentState.compareAndSet(oldState, newState);
-            if (!b || oldState == newState) {
+            if (!b) {
                 System.out.println("CurrentState.CompareAndSet failed!");
                 return;
             }
@@ -186,6 +170,45 @@ public class CommunicationHub implements Runnable {
         }
     }
 
+
+
+    public void handleIncomingConnection(final Socket socket){
+        Runnable invit = new Runnable() {
+            @Override
+            public void run() {
+                handleConnection(socket);
+            }
+        };
+        threadPool.execute(invit);
+    }
+
+    public void sendInvite(String ip) {
+        System.out.println("Starting call");
+        Runnable invit = new Runnable() {
+            @Override
+            public void run() {
+                try (Socket socket = new Socket(ip, listeningPort)) {
+                    System.out.println("sending invite");
+                    ClientSipState oldState = currentState.get();
+                    ClientSipState newState = oldState.sendInvite(socket, "INVITE");
+                    if(oldState == newState) {
+                        System.out.println("sendInvite:busy");
+                        return;
+                    }
+                    boolean b = currentState.compareAndSet(oldState, newState);
+                    if (!b) {
+                        System.out.println("sendInvite:failed");
+                        return;
+                    }
+                    handelOpenConnection(socket);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        threadPool.execute(invit);
+    }
+
     /**
      * When an object implementing interface <code>Runnable</code> is used
      * to create a thread, starting the thread causes the object's
@@ -206,7 +229,9 @@ public class CommunicationHub implements Runnable {
                     System.out.println("waiting for connection...");
                     Socket incomingConnection = serverSocket.accept();
                     System.out.println("Incoming connection!");
-                    handleIncomingConncetion(incomingConnection);
+
+                    handleIncomingConnection(incomingConnection);
+
 
                 } catch (IOException e) {
                     e.printStackTrace();
