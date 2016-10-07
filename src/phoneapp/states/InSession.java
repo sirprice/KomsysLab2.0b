@@ -31,7 +31,7 @@ public class InSession extends ClientSipState {
     }
 
     @Override
-    public ClientSipState recieveBye() {
+    public ClientSipState recieveBye() throws IOException {
         System.out.println("InSession;recieveBye");
         PrintWriter output = null;
         try {
@@ -41,6 +41,7 @@ public class InSession extends ClientSipState {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        currentSocket.close();
         return new Free();
     }
     @Override
