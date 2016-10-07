@@ -41,7 +41,7 @@ public class CommunicationHub implements Runnable {
     }
 
     private void registrateAllInSignals() {
-        //signalList.put("INVITE",new phoneapp.Invoker.InvokeInvite());
+        signalList.put("INVITE",new phoneapp.Invoker.InvokeInvite());
         signalList.put("TRO", new Invoker.InvokeTRO());
         signalList.put("200", new Invoker.InvokeOK());
         signalList.put("ACK", new Invoker.InvokeAck());

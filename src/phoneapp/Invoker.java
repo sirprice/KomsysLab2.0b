@@ -9,12 +9,12 @@ import java.net.Socket;
  * Created by o_0 on 2016-10-05.
  */
 public class Invoker {
-//    public static class InvokeInvite implements phoneapp.SignalInvoker {
-//        @Override
-//        public ClientSipState invoke(ClientSipState state, String body) {
-//            return state.recieveInvite(body);
-//        }
-//    }
+    public static class InvokeInvite implements SignalInvoker{
+        @Override
+        public ClientSipState invoke(Socket fromSocket, ClientSipState state, String body) {
+            return state.recieveInvite(fromSocket,body);
+        }
+    }
     public static class InvokeTRO implements SignalInvoker {
         @Override
         public ClientSipState invoke(Socket fromSocket, ClientSipState state, String body) {
