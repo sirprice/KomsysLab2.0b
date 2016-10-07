@@ -110,7 +110,8 @@ public class CommunicationHub implements Runnable {
         BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         System.out.println("Opening connection");
         boolean connected = currentState.get().isConnceted();
-        while (connected || running.get() != true) {
+        while (connected || running.get()) {
+
             String msg = input.readLine();
             ClientSipState oldState = this.currentState.get();
             SignalInvoker signalInvoker = evaluateCommand(msg);
@@ -153,11 +154,14 @@ public class CommunicationHub implements Runnable {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg = input.readLine();
             System.out.println("handleIncomingConncetion: incoming msg: " + msg);
+
             // this always should be from a new connection
             ClientSipState oldState = this.currentState.get();
             ClientSipState newState = oldState.recieveInvite(socket, msg);
+
             boolean b = this.currentState.compareAndSet(oldState, newState);
             if (!b || oldState == newState) {
+                System.out.println("CurrentState.CompareAndSet failed!");
                 return;
             }
             handelOpenConnection(socket);
@@ -179,9 +183,7 @@ public class CommunicationHub implements Runnable {
                     e.printStackTrace();
                 }
             }
-
         }
-
     }
 
     /**
@@ -205,11 +207,6 @@ public class CommunicationHub implements Runnable {
                     Socket incomingConnection = serverSocket.accept();
                     System.out.println("Incoming connection!");
                     handleIncomingConncetion(incomingConnection);
-//                if(!currentState.isConnected()) {
-//                    handleIncomingConncetion(incomingConnection);
-//                }else {
-//                    // TODO: 2016-10-05 handle busy
-//                }
 
                 } catch (IOException e) {
                     e.printStackTrace();
