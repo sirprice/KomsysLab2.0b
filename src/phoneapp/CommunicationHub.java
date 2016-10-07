@@ -41,7 +41,7 @@ public class CommunicationHub implements Runnable {
     }
 
     private void registrateAllInSignals() {
-        signalList.put("INVITE",new Invoker.InvokeInvite());
+        signalList.put("INVITE", new Invoker.InvokeInvite());
         signalList.put("TRO", new Invoker.InvokeTRO());
         signalList.put("200", new Invoker.InvokeOK());
         signalList.put("ACK", new Invoker.InvokeAck());
@@ -76,7 +76,6 @@ public class CommunicationHub implements Runnable {
     private Object lockCurrentState = new Object();
 
 
-
     public void endCall() {
         ClientSipState oldState = this.currentState.get();
         ClientSipState newState = oldState.sendBye("");
@@ -85,7 +84,8 @@ public class CommunicationHub implements Runnable {
             return;
         }
     }
-    public String getCurrentStateName(){
+
+    public String getCurrentStateName() {
         return currentState.get().getStatename();
     }
 
@@ -108,6 +108,7 @@ public class CommunicationHub implements Runnable {
         System.out.println("EvaluateCommand: Body = " + body);
         return invokeSignal(cmd);
     }
+
     private void handelOpenConnection(Socket socket) throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         System.out.println("Opening connection");
@@ -115,9 +116,13 @@ public class CommunicationHub implements Runnable {
         while (connected || running.get()) {
 
             String msg = input.readLine();
+            if (msg == null) {
+                System.out.println("Client dropped out");
+                return;
+            }
             ClientSipState oldState = this.currentState.get();
             SignalInvoker signalInvoker = evaluateCommand(msg);
-            ClientSipState newState = signalInvoker.invoke(socket,oldState, msg);
+            ClientSipState newState = signalInvoker.invoke(socket, oldState, msg);
 
             boolean b = this.currentState.compareAndSet(oldState, newState);
             if (!b) {
@@ -127,7 +132,6 @@ public class CommunicationHub implements Runnable {
             connected = currentState.get().isConnceted();
         }
     }
-
 
 
     private void handleConnection(Socket socket) {
@@ -173,7 +177,7 @@ public class CommunicationHub implements Runnable {
         }
     }
 
-    public void handleIncomingConnection(final Socket socket){
+    public void handleIncomingConnection(final Socket socket) {
         Runnable invit = new Runnable() {
             @Override
             public void run() {
@@ -192,7 +196,7 @@ public class CommunicationHub implements Runnable {
                     System.out.println("sending invite");
                     ClientSipState oldState = currentState.get();
                     ClientSipState newState = oldState.sendInvite(socket, "INVITE");
-                    if(oldState == newState) {
+                    if (oldState == newState) {
                         System.out.println("sendInvite:busy");
                         return;
                     }
