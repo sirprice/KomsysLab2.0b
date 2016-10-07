@@ -1,5 +1,10 @@
 package phoneapp.states;
 
+import phoneapp.AudioStreamUDP;
+
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.Socket;
 
 /**
@@ -7,15 +12,23 @@ import java.net.Socket;
  */
 public class TROReceiver extends ClientSipState {
     private Socket currentSocket;
+    private AudioStreamUDP audioStreamUDP;
+    private int remotePort;
+    private InetAddress remoteAddr;
 
-    public TROReceiver(Socket currentSocket, String sip_ip_to, String sip_ip_from, int port) {
+    public TROReceiver(Socket currentSocket, String sip_ip_from,String sip_ip_to, int port) throws IOException {
         System.out.println("Entering TROReceiver");
         this.currentSocket = currentSocket;
+        audioStreamUDP = new AudioStreamUDP();
+        this.remotePort = port;
+        this.remoteAddr = InetAddress.getByName(sip_ip_from);
+        System.out.println("Remote Addr: "+remoteAddr);
     }
 
     @Override
-    public ClientSipState recieveAck() {
-        return new InSession(currentSocket);
+    public ClientSipState recieveAck() throws IOException {
+        audioStreamUDP.connectTo(remoteAddr,remotePort);
+        return new InSession(currentSocket,audioStreamUDP);
     }
 
     @Override

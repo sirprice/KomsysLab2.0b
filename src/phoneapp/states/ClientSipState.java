@@ -28,7 +28,7 @@ public abstract class ClientSipState {
     public ClientSipState recieveTRO(){return this;}
     public ClientSipState recieveBye() throws IOException {return this;}
     public ClientSipState recieveOk() throws IOException {return this;}
-    public ClientSipState recieveAck(){return this;}
+    public ClientSipState recieveAck() throws IOException {return this;}
     public ClientSipState recieveBusy(){
         System.out.println("ClientSipState:recieveBusy: default ");
         return new Free();}

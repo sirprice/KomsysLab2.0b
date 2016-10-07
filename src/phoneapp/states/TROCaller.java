@@ -1,5 +1,7 @@
 package phoneapp.states;
 
+import phoneapp.AudioStreamUDP;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -10,10 +12,12 @@ import java.net.Socket;
  */
 public class TROCaller extends ClientSipState {
     private Socket currentSocket;
+    private AudioStreamUDP audioStreamUDP;
 
-    public TROCaller(Socket currentSocket) {
+    public TROCaller(Socket currentSocket, AudioStreamUDP audioStreamUDP) {
         System.out.println("TROCaller: Enter TROCaller state");
         this.currentSocket = currentSocket;
+        this.audioStreamUDP = audioStreamUDP;
     }
 
     @Override
@@ -27,7 +31,7 @@ public class TROCaller extends ClientSipState {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new InSession(currentSocket);
+        return new InSession(currentSocket,audioStreamUDP);
     }
 
     @Override

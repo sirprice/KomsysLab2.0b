@@ -1,5 +1,7 @@
 package phoneapp.states;
 
+import phoneapp.AudioStreamUDP;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -26,14 +28,22 @@ public class Free extends ClientSipState {
         PrintWriter output = null;
         String sip_me = null;
         String sip_to = null;
-        int port = (new Random()).nextInt(10000) + 44000;
+        AudioStreamUDP audioStreamUDP = null;
+        int port = 0;
+
         try {
+            audioStreamUDP = new AudioStreamUDP();
+            port = audioStreamUDP.getLocalPort();
             sip_me = Inet4Address.getLocalHost().getHostAddress();
             sip_to = socket.getInetAddress().toString().substring(1);
             System.out.println("sip_to: " + sip_to);
             System.out.println("sip_from: " + sip_me);
         } catch (UnknownHostException e) {
             e.printStackTrace();
+            return this;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return this;
         }
         try {
             output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -41,8 +51,9 @@ public class Free extends ClientSipState {
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
+            return this;
         }
-        return new TROCaller(socket);
+        return new TROCaller(socket, audioStreamUDP);
     }
 
     private static String DELIMITERS = " \n";
