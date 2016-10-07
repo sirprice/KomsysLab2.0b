@@ -18,6 +18,7 @@ public class InSession extends ClientSipState {
 
     @Override
     public ClientSipState sendBye(String body) {
+        System.out.println("InSession;sendBye");
         PrintWriter output = null;
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
@@ -31,6 +32,7 @@ public class InSession extends ClientSipState {
 
     @Override
     public ClientSipState recieveBye() {
+        System.out.println("InSession;recieveBye");
         PrintWriter output = null;
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));

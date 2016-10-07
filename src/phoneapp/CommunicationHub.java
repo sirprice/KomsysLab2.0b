@@ -4,6 +4,7 @@ import phoneapp.states.ClientSipState;
 import phoneapp.states.Free;
 
 import java.io.*;
+import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.StringTokenizer;
@@ -36,6 +37,7 @@ public class CommunicationHub implements Runnable {
         this.currentState.set(new Free());
         this.serverSocket = new ServerSocket(port);
         registrateAllInSignals();
+        System.out.println("Can accept call: ip: " + Inet4Address.getLocalHost() + " port: " + listeningPort);
     }
 
     private void registrateAllInSignals() {
@@ -45,6 +47,7 @@ public class CommunicationHub implements Runnable {
         signalList.put("ACK", new Invoker.InvokeAck());
         signalList.put("BUSY", new Invoker.InvokeBusy());
         signalList.put("INVALID", new Invoker.InvokeInvalid());
+        signalList.put("BYE", new Invoker.InvokeBye());
     }
 
     public void startServer() {
@@ -56,6 +59,7 @@ public class CommunicationHub implements Runnable {
         try {
             serverSocket.close();
             endCall();
+            threadPool.shutdown();
         } catch (IOException e) {
             e.printStackTrace();
         }
