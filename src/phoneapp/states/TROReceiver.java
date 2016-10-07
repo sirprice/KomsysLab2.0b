@@ -8,7 +8,7 @@ import java.net.Socket;
 public class TROReceiver extends ClientSipState {
     private Socket currentSocket;
 
-    public TROReceiver(Socket currentSocket) {
+    public TROReceiver(Socket currentSocket, String sip_ip_to, String sip_ip_from, int port) {
         System.out.println("Entering TROReceiver");
         this.currentSocket = currentSocket;
     }

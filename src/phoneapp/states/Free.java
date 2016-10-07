@@ -3,7 +3,10 @@ package phoneapp.states;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.Inet4Address;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Random;
 
 /**
  * Created by cj on 2016-10-04.
@@ -20,9 +23,20 @@ public class Free extends ClientSipState {
     public ClientSipState sendInvite(Socket socket, String body) {
         System.out.println("Free:sendInvite");
         PrintWriter output = null;
+        String sip_me = null;
+        String sip_to = null;
+        int port = (new Random()).nextInt(10000) + 44000;
+        try {
+            sip_me = Inet4Address.getLocalHost().getHostAddress();
+            sip_to = socket.getInetAddress().toString();
+            System.out.println("sip_to: " + sip_to);
+            System.out.println("sip_from: " + sip_me);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         try {
             output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            output.println("INVITE");
+            output.println("INVITE " + sip_me + " " + sip_to + " " + port);
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -32,7 +46,7 @@ public class Free extends ClientSipState {
 
     @Override
     public ClientSipState recieveInvite(Socket socket,String body) {
-        System.out.println("Free:recieveInvite");
+        System.out.println("Free:recieveInvite: body:" + body);
         PrintWriter output = null;
         try {
             output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -41,7 +55,7 @@ public class Free extends ClientSipState {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new TROReceiver(socket);
+        return new TROReceiver(socket,"","",1);
     }
 
     @Override
