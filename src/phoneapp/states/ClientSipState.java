@@ -10,7 +10,7 @@ import java.net.Socket;
  */
 public abstract class ClientSipState {
     public boolean setSessionSocket(Socket socket) {return false;};
-    public boolean hasTimedOut() {return false;};
+    public boolean hasTimedOut() {return true;};
     public ClientSipState sendInvite(Socket socket, String body) {return this;}
     public ClientSipState sendBye(String body) {return this;}
     public ClientSipState recieveInvite(Socket socket, String body){

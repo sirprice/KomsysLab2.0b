@@ -47,4 +47,9 @@ public class InSession extends ClientSipState {
     public String getStatename() {
         return "IN SESSION";
     }
+
+    @Override
+    public boolean hasTimedOut() {
+        return false;
+    }
 }
