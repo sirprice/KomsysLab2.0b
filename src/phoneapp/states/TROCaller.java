@@ -22,11 +22,11 @@ public class TROCaller extends ClientSipState {
     }
 
     @Override
-    public ClientSipState recieveTRO() {
+    public ClientSipState recieveTRO(String body) {
         System.out.println("TROCaller: Receiving TRO call");
         PrintWriter output = null;
+        audioStreamUDP.startStreaming();
         try {
-            audioStreamUDP.startStreaming();
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
             output.println("ACK");
             output.flush();

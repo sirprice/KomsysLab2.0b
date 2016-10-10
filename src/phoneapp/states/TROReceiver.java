@@ -28,8 +28,8 @@ public class TROReceiver extends ClientSipState {
 
     @Override
     public ClientSipState recieveAck() throws IOException {
-        audioStreamUDP.connectTo(remoteAddr,remotePort);
         audioStreamUDP.startStreaming();
+        audioStreamUDP.connectTo(remoteAddr,remotePort);
         return new InSession(currentSocket,audioStreamUDP);
     }
 

@@ -19,7 +19,7 @@ public class Invoker {
     public static class InvokeTRO implements SignalInvoker {
         @Override
         public ClientSipState invoke(Socket fromSocket, ClientSipState state, String body) throws IOException {
-            return state.recieveTRO();
+            return state.recieveTRO(body);
         }
     }
     public static class InvokeBye implements SignalInvoker {

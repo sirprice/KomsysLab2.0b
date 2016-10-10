@@ -25,7 +25,7 @@ public abstract class ClientSipState {
         }
         return this;
     }
-    public ClientSipState recieveTRO(){return this;}
+    public ClientSipState recieveTRO(String body){return this;}
     public ClientSipState recieveBye() throws IOException {return this;}
     public ClientSipState recieveOk() throws IOException {return this;}
     public ClientSipState recieveAck() throws IOException {return this;}
