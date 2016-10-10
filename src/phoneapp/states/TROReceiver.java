@@ -13,7 +13,7 @@ import java.net.Socket;
 public class TROReceiver extends ClientSipState {
     private Socket currentSocket;
     private AudioStreamUDP audioStreamUDP;
-    private int remotePort;
+    private int remotePort, localPort;
     private InetAddress remoteAddr;
 
     public TROReceiver(Socket currentSocket, String sip_ip_from,String sip_ip_to, int port) throws IOException {
@@ -26,10 +26,14 @@ public class TROReceiver extends ClientSipState {
 
     }
 
+    public TROReceiver(Socket socket, int localPort, int remotePort, AudioStreamUDP audioStreamUDP) {
+        this.audioStreamUDP = audioStreamUDP;
+        this.remotePort = remotePort;
+        this.localPort = localPort;
+    }
+
     @Override
     public ClientSipState recieveAck() throws IOException {
-        audioStreamUDP.startStreaming();
-        audioStreamUDP.connectTo(remoteAddr,remotePort);
         return new InSession(currentSocket,audioStreamUDP);
     }
 
