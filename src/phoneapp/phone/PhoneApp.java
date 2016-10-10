@@ -49,7 +49,7 @@ public class PhoneApp extends Application {
         final CommunicationHub hub;
         try {
 
-            hub = new CommunicationHub(localPort,remotePort);
+            hub = new CommunicationHub(remotePort,localPort);
         } catch (IOException e) {
             e.printStackTrace();
             return;
