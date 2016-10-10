@@ -18,6 +18,7 @@ public class InSession extends ClientSipState {
         System.out.println("Entering InSession");
         this.currentSocket = currentSocket;
         this.audioStreamUDP = audioStreamUDP;
+        //audioStreamUDP.startStreaming();
     }
 
     @Override

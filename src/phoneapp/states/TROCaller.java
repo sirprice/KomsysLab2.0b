@@ -26,6 +26,7 @@ public class TROCaller extends ClientSipState {
         System.out.println("TROCaller: Receiving TRO call");
         PrintWriter output = null;
         try {
+            audioStreamUDP.startStreaming();
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
             output.println("ACK");
             output.flush();
