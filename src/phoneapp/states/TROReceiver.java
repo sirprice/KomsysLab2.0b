@@ -16,17 +16,9 @@ public class TROReceiver extends ClientSipState {
     private int remotePort, localPort;
     private InetAddress remoteAddr;
 
-    public TROReceiver(Socket currentSocket, String sip_ip_from,String sip_ip_to, int port) throws IOException {
-        System.out.println("Entering TROReceiver");
+
+    public TROReceiver(Socket currentSocket, int localPort, int remotePort, AudioStreamUDP audioStreamUDP) {
         this.currentSocket = currentSocket;
-        audioStreamUDP = new AudioStreamUDP();
-        this.remotePort = port;
-        this.remoteAddr = InetAddress.getByName(sip_ip_from);
-        System.out.println("Remote Addr: "+remoteAddr);
-
-    }
-
-    public TROReceiver(Socket socket, int localPort, int remotePort, AudioStreamUDP audioStreamUDP) {
         this.audioStreamUDP = audioStreamUDP;
         this.remotePort = remotePort;
         this.localPort = localPort;

@@ -4,10 +4,7 @@ import phoneapp.states.ClientSipState;
 import phoneapp.states.Free;
 
 import java.io.*;
-import java.net.Inet4Address;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -128,7 +125,11 @@ public class CommunicationHub implements Runnable {
             String msg = "none";
             try {
                 msg = input.readLine();
-            } catch (SocketTimeoutException e) {
+            } catch (SocketException se){
+                setDisplayMessage("You are not currently connected to anything");
+                break;
+            }
+            catch (SocketTimeoutException e) {
                 if (this.currentState.get().hasTimedOut()) {
                     System.out.println("Connection timeout..");
                     displayMsg = "Connection timed out";
