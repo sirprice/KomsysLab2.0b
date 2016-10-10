@@ -26,6 +26,7 @@ public class InSession extends ClientSipState {
         System.out.println("InSession;sendBye");
         PrintWriter output = null;
         audioStreamUDP.stopStreaming();
+        audioStreamUDP.close();
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
             output.println("BYE");
@@ -42,6 +43,7 @@ public class InSession extends ClientSipState {
         System.out.println("InSession;recieveBye");
         PrintWriter output = null;
         audioStreamUDP.stopStreaming();
+        audioStreamUDP.close();
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
             output.println("200 OK");
