@@ -25,11 +25,11 @@ public class InSession extends ClientSipState {
     public ClientSipState sendBye(String body) {
         System.out.println("InSession;sendBye");
         PrintWriter output = null;
+        audioStreamUDP.stopStreaming();
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
             output.println("BYE");
             output.flush();
-            audioStreamUDP.stopStreaming();
         } catch (IOException e) {
 
             e.printStackTrace();
@@ -41,11 +41,11 @@ public class InSession extends ClientSipState {
     public ClientSipState recieveBye() throws IOException {
         System.out.println("InSession;recieveBye");
         PrintWriter output = null;
+        audioStreamUDP.stopStreaming();
         try {
             output = new PrintWriter(new OutputStreamWriter(currentSocket.getOutputStream()));
             output.println("200 OK");
             output.flush();
-            audioStreamUDP.stopStreaming();
         } catch (IOException e) {
             e.printStackTrace();
         }
