@@ -16,18 +16,21 @@ public class PhoneApp extends Application {
 
     public static final int width = 800;
     public static final int height = 600;
-    private static Integer port = 0;
+    private static Integer remotePort = 0;
+    private static Integer localPort = 0;
 
 
     public static void main(String[] args) {
         try {
-            if (args.length > 0){
-                port = Integer.parseInt(args[0]);
+            if (args.length == 2){
+                localPort = Integer.parseInt(args[0]);
+                remotePort = Integer.parseInt(args[1]);
             }
 
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            port = 0;
+            localPort = 0;
+            remotePort = 0;
         }
         launch(args);
     }
@@ -46,7 +49,7 @@ public class PhoneApp extends Application {
         final CommunicationHub hub;
         try {
 
-            hub = new CommunicationHub(port);
+            hub = new CommunicationHub(localPort,remotePort);
         } catch (IOException e) {
             e.printStackTrace();
             return;

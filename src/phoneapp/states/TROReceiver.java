@@ -22,6 +22,7 @@ public class TROReceiver extends ClientSipState {
         this.audioStreamUDP = audioStreamUDP;
         this.remotePort = remotePort;
         this.localPort = localPort;
+        this.currentSocket = currentSocket;
     }
 
     @Override

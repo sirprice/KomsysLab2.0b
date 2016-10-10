@@ -20,6 +20,7 @@ public class CommunicationHub implements Runnable {
     private AtomicReference<ClientSipState> currentState;
     private AtomicBoolean running = new AtomicBoolean(true);
     private int listeningPort;
+    private int callingPort;
     private ExecutorService threadPool;
     private String displayMessage = "";
     private static final String DELIMITERS = " \n";
@@ -27,12 +28,13 @@ public class CommunicationHub implements Runnable {
 
     private ServerSocket serverSocket = null;
 
-    public CommunicationHub(int port) throws IOException {
+    public CommunicationHub(int callingPort, int listeningPort) throws IOException {
         this.threadPool = Executors.newCachedThreadPool();
-        this.listeningPort = (port <= 0) ? 55000 : port;
+        this.listeningPort = (listeningPort <= 0) ? 55000 : listeningPort;
+        this.callingPort  = (callingPort <= 0) ? 55000 : callingPort;
         this.currentState = new AtomicReference<>();
         this.currentState.set(new Free());
-        this.serverSocket = new ServerSocket(port);
+        this.serverSocket = new ServerSocket(listeningPort);
         //this.serverSocket.setSoTimeout(2000);
         registrateAllInSignals();
         System.out.println("Can accept call: ip: " + Inet4Address.getLocalHost() + " port: " + listeningPort);
@@ -227,7 +229,7 @@ public class CommunicationHub implements Runnable {
             @Override
             public void run() {
                 setDisplayMessage("Starting Call");
-                try (Socket socket = new Socket(ip, listeningPort)) {
+                try (Socket socket = new Socket(ip, callingPort)) {
                     System.out.println("sending invite");
                     ClientSipState oldState = currentState.get();
                     ClientSipState newState = oldState.sendInvite(socket, "INVITE");
