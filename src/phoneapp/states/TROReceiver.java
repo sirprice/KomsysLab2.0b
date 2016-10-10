@@ -23,11 +23,13 @@ public class TROReceiver extends ClientSipState {
         this.remotePort = port;
         this.remoteAddr = InetAddress.getByName(sip_ip_from);
         System.out.println("Remote Addr: "+remoteAddr);
+
     }
 
     @Override
     public ClientSipState recieveAck() throws IOException {
         audioStreamUDP.connectTo(remoteAddr,remotePort);
+        audioStreamUDP.startStreaming();
         return new InSession(currentSocket,audioStreamUDP);
     }
 
