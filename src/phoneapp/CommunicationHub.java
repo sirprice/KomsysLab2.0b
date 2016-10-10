@@ -122,7 +122,7 @@ public class CommunicationHub implements Runnable {
         System.out.println("Opening connection");
         String displayMsg = "Call ended";
         boolean connected = currentState.get().isConnceted();
-        while (connected || running.get()) {
+        while (connected && running.get()) {
 
             String msg = "none";
             try {
@@ -142,8 +142,9 @@ public class CommunicationHub implements Runnable {
                 }
             }
             if (msg == null) {
+
                 displayMsg = "Client dropped out";
-                System.out.println("Client dropped out");
+                System.out.println("Client dropped out due to msg = null");
 
                 ClientSipState oldState = this.currentState.get();
                 ClientSipState newState = oldState.recieveConnectionDroped();
