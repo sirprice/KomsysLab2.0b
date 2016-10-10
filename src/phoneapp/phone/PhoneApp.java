@@ -16,16 +16,28 @@ public class PhoneApp extends Application {
 
     public static final int width = 800;
     public static final int height = 600;
+    private static Integer port = 0;
 
 
     public static void main(String[] args) {
+        try {
+            if (args.length > 0){
+                port = Integer.parseInt(args[0]);
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            port = 0;
+        }
         launch(args);
     }
+
     private PhoneAppController controler;
 
     /**
      * This starts the javafx app, and creates all views and models and connect them together
      * with a controller, MVC
+     *
      * @param primaryStage javafx stage
      */
     @Override
@@ -33,12 +45,13 @@ public class PhoneApp extends Application {
         PhoneView view = new PhoneView(primaryStage);
         final CommunicationHub hub;
         try {
-            hub = new CommunicationHub(55000);
+
+            hub = new CommunicationHub(port);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
-        this.controler = new PhoneAppController(view,hub);
+        this.controler = new PhoneAppController(view, hub);
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {

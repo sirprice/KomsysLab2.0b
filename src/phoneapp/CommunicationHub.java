@@ -29,7 +29,7 @@ public class CommunicationHub implements Runnable {
 
     public CommunicationHub(int port) throws IOException {
         this.threadPool = Executors.newCachedThreadPool();
-        this.listeningPort = (port <= 0) ? 5060 : port;
+        this.listeningPort = (port <= 0) ? 55000 : port;
         this.currentState = new AtomicReference<>();
         this.currentState.set(new Free());
         this.serverSocket = new ServerSocket(port);
