@@ -30,6 +30,11 @@ public class TROReceiver extends ClientSipState {
     }
 
     @Override
+    public ClientSipState recieveConnectionDroped() throws IOException {
+        audioStreamUDP.close();
+        return super.recieveConnectionDroped();
+    }
+    @Override
     public String getStatename() {
         return "TRO RECEIVER";
     }

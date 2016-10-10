@@ -62,6 +62,13 @@ public class InSession extends ClientSipState {
     }
 
     @Override
+    public ClientSipState recieveConnectionDroped() throws IOException {
+        audioStreamUDP.close();
+        audioStreamUDP.stopStreaming();
+        return super.recieveConnectionDroped();
+    }
+
+    @Override
     public boolean hasTimedOut() {
         return false;
     }

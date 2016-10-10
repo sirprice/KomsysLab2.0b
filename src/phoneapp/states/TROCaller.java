@@ -70,6 +70,11 @@ public class TROCaller extends ClientSipState {
         }
         return true;
     }
+    @Override
+    public ClientSipState recieveConnectionDroped() throws IOException {
+        audioStreamUDP.close();
+        return super.recieveConnectionDroped();
+    }
 
     @Override
     public String getStatename() {

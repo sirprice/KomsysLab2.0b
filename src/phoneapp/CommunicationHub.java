@@ -133,14 +133,23 @@ public class CommunicationHub implements Runnable {
                 if (this.currentState.get().hasTimedOut()) {
                     System.out.println("Connection timeout..");
                     displayMsg = "Connection timed out";
+                    ClientSipState oldState = this.currentState.get();
+                    ClientSipState newState = oldState.recieveConnectionDroped();
+                    this.currentState.compareAndSet(oldState, newState);
                     break;
                 }
             }
             if (msg == null) {
                 displayMsg = "Client dropped out";
                 System.out.println("Client dropped out");
+
+                ClientSipState oldState = this.currentState.get();
+                ClientSipState newState = oldState.recieveConnectionDroped();
+                this.currentState.compareAndSet(oldState, newState);
                 break;
             }
+
+
             ClientSipState oldState = this.currentState.get();
             SignalInvoker signalInvoker = evaluateCommand(msg);
             ClientSipState newState = signalInvoker.invoke(socket, oldState, msg);

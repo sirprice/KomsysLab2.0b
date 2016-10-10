@@ -29,10 +29,15 @@ public abstract class ClientSipState {
     public ClientSipState recieveBye() throws IOException {return this;}
     public ClientSipState recieveOk() throws IOException {return this;}
     public ClientSipState recieveAck() throws IOException {return this;}
+    public ClientSipState recieveConnectionDroped() throws IOException {
+        return new Free();
+    }
     public ClientSipState recieveBusy(){
         System.out.println("ClientSipState:recieveBusy: default ");
         return new Free();}
-    public ClientSipState recieveInvalid(String body){return this;}
+    public ClientSipState recieveInvalid(String body){
+        System.out.println("received invalid call");
+        return this;}
     public boolean isConnceted() {return true;}
     public String getStatename(){return "unknown state";};
 }
